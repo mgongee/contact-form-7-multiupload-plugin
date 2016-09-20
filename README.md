@@ -1,2 +1,2 @@
-# contact-form-7-upload-plugin
-Extension for a Wordpress plugin Contact Form 7, adding mail-tag/field-type for uploading multiple files at once.
+# contact-form-7-multiupload-plugin
+Extension for a Wordpress plugin "Contact Form 7". Adds [multifile] mail-tag/field-type for uploading multiple files at once.
