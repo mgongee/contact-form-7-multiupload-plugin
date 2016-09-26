@@ -22,7 +22,7 @@ jQuery(document).ready(function(){
         'do_action': 'uploadFile'
     };
 	
-	//console.log("dropzoneEl.data('max_file-size')", dropzoneEl.data('max-file-size'), dropzoneEl.data('allowed-filetypes'), dropzoneEl.data('max-files')); 
+	console.log("dropzoneEl.data('max_file-size')", dropzoneEl.data('max-file-size'), dropzoneEl.data('allowed-filetypes'), dropzoneEl.data('max-files')); 
 	
     dropzoneEl.dropzone({
 		url: dropzoneParameters.upload_url,

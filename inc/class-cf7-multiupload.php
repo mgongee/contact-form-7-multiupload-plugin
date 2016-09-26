@@ -121,15 +121,16 @@ class Cf7_Multiupload extends Cf7_Extension {
 			$allowed_file_types = 'jpg,jpeg,png,gif,pdf,doc,docx,ppt,pptx,odt,avi,ogg,m4a,mov,mp3,mp4,mpg,wav,wmv';
 		}
 
-		$allowed_size = 1048576; // default size 1 MB
+		$allowed_size = 1; // default size 1 MB
 		$allowed_filesize_limit = $tag->get_option('limit');
 
-		$limit_pattern = '/^([1-9][0-9]*)([kKmM]?[bB])?$/';
+		//$limit_pattern = '/^([1-9][0-9]*)([kKmM]?[bB])?$/';
+		$limit_pattern = '/^([1-9][0-9]*)$/';
 
 		foreach ($allowed_filesize_limit as $file_size) {
 			if (preg_match($limit_pattern, $file_size, $matches)) {
 				$allowed_size = (int) $matches[1];
-
+/*
 				if (!empty($matches[2])) {
 					$kbmb = strtolower($matches[2]);
 
@@ -138,11 +139,11 @@ class Cf7_Multiupload extends Cf7_Extension {
 					elseif ('mb' == $kbmb)
 						$allowed_size *= 1024 * 1024;
 				}
-
+*/
 				break;
 			}
 		}
-
+		
 		$max_files = 15;   // default limit
 		$allowed_filecount_limit = $tag->get_option('max_files');
 
