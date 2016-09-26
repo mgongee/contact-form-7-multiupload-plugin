@@ -29,14 +29,14 @@ jQuery(document).ready(function(){
 		addRemoveLinks: true,
 		maxFilesize: dropzoneEl.data('max-file-size'), // "<?php echo $maxFileSize ?>",
 		params: sendDataObject,
-		acceptedFiles: dropzoneEl.data('allowed-filetypes'), // "<?php echo $allowedFileTypes ?>",
+		//acceptedFiles: dropzoneEl.data('allowed-filetypes'), // "<?php echo $allowedFileTypes ?>",
 		maxFiles: dropzoneEl.data('max-files'), //"<?php echo $allowedNumberOfFiles ?>",
 		success: function (file, response) {
 			var uploadedFileUrl = response.file_url;
 			var uploadedFileId = response.file_id;
 			if (uploadedFileUrl != 0) {
 				var uploadedFileUrls = dropzoneUploadedFiles.val();
-				var newUrlsValue = uploadedFileUrls ? uploadedFileUrls + ',"' + uploadedFileUrl + '"' : '"' + uploadedFileUrl + '"';
+				var newUrlsValue = uploadedFileUrls ? uploadedFileUrls + ',' + uploadedFileUrl : uploadedFileUrl;
 				dropzoneUploadedFiles.val(newUrlsValue);
 				
 				if (uploadedFileId != 0) {

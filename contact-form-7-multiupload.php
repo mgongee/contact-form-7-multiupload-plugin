@@ -6,7 +6,7 @@ Author: mgongee
 Author URI: https://profiles.wordpress.org/mgongee
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Version: 1.0
+Version: 0.1
 */
 
 /*  Below code is partially based on the work by Katz Web Services, Inc. 
@@ -29,7 +29,7 @@ Version: 1.0
 
 require_once 'includes.php';
 
-define('CFMU_VERSION', '1.0');
+define('CFMU_VERSION', '0.1');
 define('CFMU_TEXT_DOMAIN', 'cf7-multiupload-field');
 define('CFMU_FIELD_NAME', 'multiupload');
 

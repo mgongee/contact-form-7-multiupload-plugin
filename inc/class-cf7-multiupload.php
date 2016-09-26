@@ -154,10 +154,10 @@ class Cf7_Multiupload extends Cf7_Extension {
 		$out = '<div class="cf7_dropzone dropzone" id="' . $id . '" '
 				. ' data-max-files="' . $max_files . '" '
 				. ' data-max-file-size="' . $allowed_size . '" '
-				. ' data-allowed-filetypes="' . $allowed_file_types . '" '
+				/*. ' data-allowed-filetypes="' . $allowed_file_types . '" '*/
 				. '></div>';
-		$out .= '<input type="hidden" name="dropzone_uploaded_file_urls" class="uploaded_file_urls" value=\'\'>';
-		$out .= '<input type="hidden" name="dropzone_uploaded_file_ids" class="uploaded_file_ids" value=\'\'>';
+		$out .= '<input type="hidden" name="dropzone_uploaded_file_urls" class="uploaded_file_urls" value="">';
+		$out .= '<input type="hidden" name="dropzone_uploaded_file_ids" class="uploaded_file_ids" value"">';
 		//$out .= wp_nonce_field( 'cf7_dropzone_upload_files' );
 
 		return $out;
@@ -288,14 +288,16 @@ class Cf7_Multiupload extends Cf7_Extension {
 	 * @return type
 	 */
 	public function validation_filter($result, $tag) {
-
+		self::log('validation_filter');
+		self::log($tag);
 		$name = $tag->name;
 
-		$uploaded_files = $this->get_uploaded_file_paths( $name );
+		$uploaded_files = $this->get_uploaded_file_paths();
 
 		if ($submission = WPCF7_Submission::get_instance()) {
+			$i = 0;
 			foreach ($uploaded_files as $file_name => $file_path) {
-				$submission->add_uploaded_file( $file_name, $file_path );
+				$submission->add_uploaded_file( $name . '-' . $i++, $file_path );
 			}
 		}
 
