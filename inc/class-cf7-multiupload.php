@@ -202,7 +202,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 						</tr>
 
 						<tr>
-							<th scope="row"><label for="<?php echo esc_attr($args['content'] . '-limit'); ?>"><?php echo esc_html(__("File size limit (bytes)", 'contact-form-7')); ?></label></th>
+							<th scope="row"><label for="<?php echo esc_attr($args['content'] . '-limit'); ?>"><?php echo esc_html(__("File size limit (Mb)", 'contact-form-7')); ?></label></th>
 							<td><input type="text" name="limit" class="filesize oneline option" id="<?php echo esc_attr($args['content'] . '-limit'); ?>" /></td>
 						</tr>
 
@@ -291,14 +291,16 @@ class Cf7_Multiupload extends Cf7_Extension {
 	public function validation_filter($result, $tag) {
 		self::log('validation_filter');
 		self::log($tag);
-		$name = $tag->name;
-
+		$name = explode( '-', $tag['name'] );
+		
 		$uploaded_files = $this->get_uploaded_file_paths();
 
 		if ($submission = WPCF7_Submission::get_instance()) {
 			$i = 0;
 			foreach ($uploaded_files as $file_name => $file_path) {
-				$submission->add_uploaded_file( $name . '-' . $i++, $file_path );
+				$i++;
+				$sub_name = $name[0] . '-' . $i;
+				$submission->add_uploaded_file( $sub_name, $file_path );
 			}
 		}
 
