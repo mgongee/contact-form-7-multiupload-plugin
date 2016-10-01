@@ -282,8 +282,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 		return $id;
 	}
 
-	/**
-	 * see contact-form-7\modules\file.php
+	/**	 
 	 * @param type $result
 	 * @param WPCF7_Shortcode $tag
 	 * @return type
@@ -294,10 +293,14 @@ class Cf7_Multiupload extends Cf7_Extension {
 		$name = explode( '-', $tag['name'] );
 		
 		$uploaded_files = $this->get_uploaded_file_paths();
+		$copied_files = $this->copy_uploaded_files( $uploaded_files );
 
-		if ($submission = WPCF7_Submission::get_instance()) {
+		if ($copied_files === false) {
+			$result->invalidate( $tag, wpcf7_get_message( 'upload_failed' ) );
+		}
+		else if ($submission = WPCF7_Submission::get_instance()) {
 			$i = 0;
-			foreach ($uploaded_files as $file_name => $file_path) {
+			foreach ($copied_files as $file_name => $file_path) {
 				$i++;
 				$sub_name = $name[0] . '-' . $i;
 				self::log("$sub_name , $file_path ");
@@ -308,7 +311,43 @@ class Cf7_Multiupload extends Cf7_Extension {
 		return $result;
 	}
 
-	public function get_uploaded_file_paths( $name ) {
+	/**
+	 * see contact-form-7\modules\file.php - function wpcf7_file_validation_filter()
+	 * Uploaded files handled same as there 
+	 * (need to copy them into CF7 location because CF7 deletes them after emailing )
+	 * 
+	 * @param type $result
+	 * @param array $uploaded_files
+	 * @return type
+	 */
+	public function copy_uploaded_files( $uploaded_files ) {
+		wpcf7_init_uploads(); // Confirm upload dir
+		$uploads_dir = wpcf7_upload_tmp_dir();
+		$uploads_dir = wpcf7_maybe_add_random_dir( $uploads_dir );
+		$copied_files = array();
+		
+		foreach ($uploaded_files as $file_path) {
+			$filename = basename($file_path);
+			$filename = wpcf7_canonicalize( $filename );
+			$filename = sanitize_file_name( $filename );
+			$filename = wpcf7_antiscript_file_name( $filename );
+			$filename = wp_unique_filename( $uploads_dir, $filename );
+
+			$new_file = trailingslashit( $uploads_dir ) . $filename;
+			self::log("Copying file from $file_path to $new_file ... ");
+			if ( false === @copy( $file_path, $new_file ) ) {
+				self::log("Copying FAILED ");
+				return false;
+			}
+		
+			
+			$copied_files[$filename] = $new_file;
+		}
+		
+		return $copied_files;
+	}
+	
+	public function get_uploaded_file_paths( ) {
 		$uploaded_files_urls = $_POST['dropzone_uploaded_file_urls'];
 		//$uploaded_files_ids = $_POST['dropzone_uploaded_file_ids'];
 		$uploaded_files = array();
