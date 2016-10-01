@@ -409,6 +409,8 @@ class Cf7_Multiupload extends Cf7_Extension {
 	 * @return type
 	 */
 	public function copy_uploaded_files( $uploaded_files ) {
+		self::log( 'preparing to copy_uploaded_files' ) ;
+		self::log( $uploaded_files) ;
 		wpcf7_init_uploads(); // Confirm upload dir
 		$uploads_dir = wpcf7_upload_tmp_dir();
 		$uploads_dir = wpcf7_maybe_add_random_dir( $uploads_dir );
@@ -447,7 +449,12 @@ class Cf7_Multiupload extends Cf7_Extension {
 			$uploaded_files_urls = explode(',', $uploaded_files_urls);
 			foreach ($uploaded_files_urls as $file_path) {
 				$file_name = basename($file_path);
-				$uploaded_files[$file_name] = $upload_dir['basedir'] . DIRECTORY_SEPARATOR .  $file_path;
+				if ( false === strpos( $file_path, $upload_dir['basedir'] ) ) {
+					$uploaded_files[$file_name] = $upload_dir['basedir'] . DIRECTORY_SEPARATOR .  $file_path;
+				}
+				else {
+					$uploaded_files[$file_name] = $file_path;
+				}
 			}
 		}
 
@@ -477,6 +484,9 @@ class Cf7_Multiupload extends Cf7_Extension {
 	 * @return array
 	 */
 	public function parse_mimetypes_option( $mime_types ) {
+
+
+		if ( !$mime_types ) return false;
 		$mime_types = explode( '|', $mime_types );
 		$parsed_mimetypes = array();
 				
@@ -565,7 +575,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 		// filetype-independent upload
 		$upload_overrides = array(
 			'test_form' => false,
-			'mimes' => $this->get_allowed_mime_types(),
+//			'mimes' => $this->get_allowed_mime_types(),
 		);
 		$movefile = wp_handle_upload( $newfile, $upload_overrides );
 		if ( $movefile && !isset( $movefile['error'] ) ) {
