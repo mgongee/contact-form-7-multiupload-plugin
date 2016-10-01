@@ -27,10 +27,10 @@ jQuery(document).ready(function(){
     dropzoneEl.dropzone({
 		url: dropzoneParameters.upload_url,
 		addRemoveLinks: true,
-		maxFilesize: dropzoneEl.data('max-file-size'), // "<?php echo $maxFileSize ?>",
+		maxFilesize: dropzoneEl.data('max-file-size'),
 		params: sendDataObject,
-		//acceptedFiles: dropzoneEl.data('allowed-filetypes'), // "<?php echo $allowedFileTypes ?>",
-		maxFiles: dropzoneEl.data('max-files'), //"<?php echo $allowedNumberOfFiles ?>",
+		acceptedFiles: dropzoneEl.data('allowed-mimetypes'),
+		maxFiles: dropzoneEl.data('max-files'),
 		success: function (file, response) {
 			var uploadedFileUrl = response.file_url;
 			var uploadedFileId = response.file_id;

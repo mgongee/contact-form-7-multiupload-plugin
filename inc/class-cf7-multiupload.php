@@ -47,7 +47,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 		add_filter('wpcf7_validate_' . CFMU_FIELD_NAME . '*', array($this, 'validation_filter'), 10, 2);
 		
 		/* Allow extra file types to be uploaded */
-		//add_filter('upload_mimes', array( $this, 'add_mime_types' ), 10, 1);
+		add_filter('upload_mimes', array( $this, 'add_mime_types' ), 10, 1);
 
 	}
 
@@ -55,26 +55,119 @@ class Cf7_Multiupload extends Cf7_Extension {
 		$dropzone_parameters = array(
 			'action' => 'cf7_dropzone_handle_dropped_media',
 			'upload_url' => admin_url('admin-post.php?action=cf7_dropzone_handle_dropped_media'),
-			'delete_url' => admin_url('admin-post.php?action=cf7_dropzone_handle_deleted_media'),
-			'accepted_files' => 'image/*,application/pdf',
-			'max_files' => 15,
-			'max_filesize' => 12800000
+			'delete_url' => admin_url('admin-post.php?action=cf7_dropzone_handle_deleted_media')
 		);
 
 		return $dropzone_parameters;
 	}
 	
-	function add_mime_types($mime_types) {
-
-		self::log('add_mime_types');
-		if (isset($_REQUEST['cf7_form_id'])) {
-			$cf7_form_id = (int) $_REQUEST['cf7_form_id'];
-			$contact_form = wpcf7_contact_form( $cf7_form_id );
-			self::log($contact_form);
+	/**
+	 * Finds corresponding file extensions for mime type
+	 * @param string $mime_type e.g. "image/*"
+	 * @param array $all_mime_types
+	 * @return array
+	 */
+	public function find_extensions_for_mime_type( $mime_type, $all_mime_types) {
+		$extra_mime_types = array();
+		
+		if ( false === strpos( $mime_type, '/*' ) ) { // this is a certain MIME type, find its extension in the list
+			$compare_mode = 'non-strict';
+		}
+		else {  // this is a set of MIME types
+			$compare_mode = 'strict';
 		}
 		
+		foreach ($all_mime_types as $extension_pattern => $mime_type_to_test) {
+			if ( $this->compare_mime_types( $mime_type, $mime_type_to_test, $compare_mode ) ) {
+				$extension_pattern = trim( $extension_pattern, '|' );
+				$extensions =  explode( '|', $extension_pattern );
+
+				foreach ( $extensions as $extension ) {
+					$ext = str_replace('.', '', $extension );
+					$extra_mime_types[$ext] = $mime_type_to_test;
+				}
+			}
+		}
+	
 		
-		$mime_types['zip'] = 'application/x-zip-compressed'; //Adding zip extension
+		return $extra_mime_types;
+	}
+	
+	/**
+	 * Compares MIME types, e.g "image/*" to "image/jpg"
+	 * 
+	 * @param string $mime_type
+	 * @param string $mime_type_to_test
+	 * @param string $compare_mode
+	 * @return boolean
+	 */
+	public function compare_mime_types( $mime_type, $mime_type_to_test, $compare_mode = 'non-strict' ) {
+		if ($compare_mode == 'non-strict') {
+			$mime_start = str_replace( '*' , '', $mime_type ); // turn "image/*" into "image/"
+			return ( 0 === strpos( $mime_type_to_test, $mime_start ) ); // find "image/" in "image/png"
+		} 
+		else {
+			return ( $mime_type == $mime_type_to_test );
+		}
+	}
+	
+	/**
+	 * Finds corresponding mime type for file extension
+	 * @param string $extension e.g. ".zip"
+	 * @param array $all_mime_types
+	 * @return array
+	 */
+	public function find_mime_type_for_extension( $extension, $all_mime_types ) {
+		$mime_types = array();
+		
+		foreach ($all_mime_types as $extension_pattern => $mime_type) {
+			$extension_pattern = trim( $extension_pattern, '|' );
+			$extension_pattern = '(' . $extension_pattern . ')';
+			$extension_pattern = '/\.' . $extension_pattern . '$/i';
+
+			if ( preg_match( $extension_pattern, $extension ) ) {
+				$ext = str_replace('.', '', $extension );
+				$mime_types[$ext] = $mime_type;
+			}
+		}
+		
+		return $mime_types;
+	}
+
+	public function add_mime_types($mime_types) {
+
+		self::log('add_mime_types');
+		if ( $this->get_current_contactform() ) {
+			$this->get_multiupload_settings();
+			self::log( $this->settings );
+			if ( isset( $this->settings['mimetypes'] ) ) {
+				$all_mime_types = wp_get_mime_types();
+				
+				foreach ( $this->settings['mimetypes'] as $mime_type ) {
+					if ( 0 === strpos( $mime_type, '.' ) ) { // this is a file extension
+						$extra_mime_types = $this->find_mime_type_for_extension( $mime_type, $all_mime_types );
+						self::log( $mime_type . '$extra_mime_types<pre>' . print_r($extra_mime_types, 1) . '</pre>' );
+						$mime_types = array_merge( $mime_types, $extra_mime_types );
+					}
+					else {
+						if ( false === strpos( $mime_type, '/' ) ) {
+							$mime_type .= '/*'; // assume that it is a set of MIME types
+						}
+						$extra_mime_types = $this->find_extensions_for_mime_type( $mime_type, $all_mime_types );
+						self::log( $mime_type . 'a set of <pre>' . print_r($extra_mime_types, 1) . '</pre>' );
+						$mime_types = array_merge( $mime_types, $extra_mime_types );
+					}
+				} 
+			}
+			
+			self::log( ' final mime_types' );
+			self::log( $mime_types );
+		}
+		else {
+			self::log( 'failed to get contact form' );
+		}
+				
+		
 		return $mime_types;
 	}
 
@@ -115,31 +208,22 @@ class Cf7_Multiupload extends Cf7_Extension {
 
 		$id = $id ? $id : $tag->name;
 
-		$allowed_file_types = str_replace('|', ',', array_shift($tag->get_option('filetypes')));
-
+		$allowed_file_types = implode( ',', $this->parse_mimetypes_option( array_shift($tag->get_option( 'mimetypes' ) ) ) );
+			
 		if (!$allowed_file_types) {
-			$allowed_file_types = 'jpg,jpeg,png,gif,pdf,doc,docx,ppt,pptx,odt,avi,ogg,m4a,mov,mp3,mp4,mpg,wav,wmv';
+			// same as in Contact Form 7
+			$allowed_file_types = '.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.ppt,.pptx,.odt,.avi,.ogg,.m4a,.mov,.mp3,.mp4,.mpg,.wav,.wmv';
 		}
 
+		
 		$allowed_size = 1; // default size 1 MB
 		$allowed_filesize_limit = $tag->get_option('limit');
 
-		//$limit_pattern = '/^([1-9][0-9]*)([kKmM]?[bB])?$/';
 		$limit_pattern = '/^([1-9][0-9]*)$/';
 
 		foreach ($allowed_filesize_limit as $file_size) {
 			if (preg_match($limit_pattern, $file_size, $matches)) {
 				$allowed_size = (int) $matches[1];
-/*
-				if (!empty($matches[2])) {
-					$kbmb = strtolower($matches[2]);
-
-					if ('kb' == $kbmb)
-						$allowed_size *= 1024;
-					elseif ('mb' == $kbmb)
-						$allowed_size *= 1024 * 1024;
-				}
-*/
 				break;
 			}
 		}
@@ -155,7 +239,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 		$out = '<div class="cf7_dropzone dropzone" id="' . $id . '" '
 				. ' data-max-files="' . $max_files . '" '
 				. ' data-max-file-size="' . $allowed_size . '" '
-				/*. ' data-allowed-filetypes="' . $allowed_file_types . '" '*/
+				. ' data-allowed-mimetypes="' . $allowed_file_types . '" '
 				. '></div>';
 		$out .= '<input type="hidden" name="dropzone_uploaded_file_urls" class="uploaded_file_urls" value="">';
 		$out .= '<input type="hidden" name="dropzone_uploaded_file_ids" class="uploaded_file_ids" value="">';
@@ -207,13 +291,17 @@ class Cf7_Multiupload extends Cf7_Extension {
 						</tr>
 
 						<tr>
-							<th scope="row"><label for="<?php echo esc_attr($args['content'] . '-filetypes'); ?>"><?php echo esc_html(__('Acceptable file types', 'contact-form-7')); ?></label></th>
-							<td><input type="text" name="filetypes" class="filetype oneline option" id="<?php echo esc_attr($args['content'] . '-filetypes'); ?>" /></td>
+							<th scope="row"><label for="<?php echo esc_attr($args['content'] . '-mimetypes'); ?>"><?php echo esc_html(__('Acceptable MIME types', 'contact-form-7')); ?></label></th>
+							<td>
+								<input type="text" name="mimetypes" class="filetype oneline option" id="<?php echo esc_attr($args['content'] . '-mimetypes'); ?>" />
+								<br />
+								<small>Example: <em>"image" for "image/*" MIME type, ".zip" for ZIP files</em></small>
+							</td>
 						</tr>
 						
 						<tr>
-							<th scope="row"><label for="<?php echo esc_attr($args['content'] . '-imageonly'); ?>"><?php echo esc_html(__('Allow images only', 'contact-form-7')); ?></label></th>
-							<td><input type="checkbox" name="imageonly" class="option" id="<?php echo esc_attr($args['content'] . '-imageonly'); ?>" /></td>
+							<th scope="row"><label for="<?php echo esc_attr($args['content'] . '-mediaonly'); ?>"><?php echo esc_html(__('Allow media files only', CFMU_TEXT_DOMAIN)); ?></label></th>
+							<td><input type="checkbox" name="mediaonly" class="option" id="<?php echo esc_attr($args['content'] . '-mediaonly'); ?>" /></td>
 						</tr>
 					</tbody>
 				</table>
@@ -334,7 +422,9 @@ class Cf7_Multiupload extends Cf7_Extension {
 			$filename = wp_unique_filename( $uploads_dir, $filename );
 
 			$new_file = trailingslashit( $uploads_dir ) . $filename;
+			
 			self::log("Copying file from $file_path to $new_file ... ");
+			
 			if ( false === @copy( $file_path, $new_file ) ) {
 				self::log("Copying FAILED ");
 				return false;
@@ -381,13 +471,38 @@ class Cf7_Multiupload extends Cf7_Extension {
 		return false;
 	}
 	
+	/**
+	 * Parses MIME type option string
+	 * @param string $mime_types MIME type codes, separated by "|"
+	 * @return array
+	 */
+	public function parse_mimetypes_option( $mime_types ) {
+		$mime_types = explode( '|', $mime_types );
+		$parsed_mimetypes = array();
+				
+		foreach ($mime_types as $mime_type) {
+			if ( 0 === strpos( $mime_type, '.' ) ) {
+				// dot at the start of the string denotes file extension, e.g ".zip" or ".mp3"
+				$parsed_mimetypes[] = $mime_type;
+			}
+			else {
+				// this is a codename for a MIME type, like "image" or "application"
+				$parsed_mimetypes[] = $mime_type . '/*'; 
+			}
+		}
+		
+		return $parsed_mimetypes;
+	}
+		
 	public function parse_multiupload_attribute( $attribute ) {
 		$temp = explode( ':', $attribute );
 		switch ( $temp[0] ) {
-			case 'imageonly':
-				$this->settings['imageonly'] = true;
+			case 'mediaonly':
+				$this->settings['mediaonly'] = true;
 				break;
-			case 'filetypes':
+			case 'mimetypes':
+				$this->settings['mimetypes'] = $this->parse_mimetypes_option( $temp[1] );
+				
 				break;
 			case 'limit':
 				break;
@@ -419,16 +534,19 @@ class Cf7_Multiupload extends Cf7_Extension {
 		return array_shift( $wp_error->errors['upload_error'] );
 	}
 	
+	/**
+	 * Receive file from DropzoneJS
+	 */
 	public function handle_dropped_media() {
 		self::log($_REQUEST);
-		self::log($_FILES);
+		self::log($_FILES);  
 		if ($this->get_current_contactform()) {
 			$this->get_multiupload_settings();
 			self::log('get_multiupload_settings');
 			self::log($this->settings);
 			if (!empty($_FILES)) {
 				foreach ($_FILES as $file) {
-					if ($this->settings['imageonly']) {
+					if ($this->settings['mediaonly']) {
 						$this->handle_dropped_image($file);
 					} else {
 						$this->handle_dropped_file($file);
@@ -438,6 +556,11 @@ class Cf7_Multiupload extends Cf7_Extension {
 		}
 	}
 	
+	/**
+	 * Receive file from DropzoneJS
+	 * Process uploaded file via Wordpress upload mechanism
+	 * @param string $newfile file  url
+	 */
 	public function handle_dropped_file($newfile) {
 		// filetype-independent upload
 		$upload_overrides = array(
@@ -469,6 +592,11 @@ class Cf7_Multiupload extends Cf7_Extension {
 		$this->respond_to_dropzonejs( $response );
 	}
 		
+	/**
+	 * Receive file from DropzoneJS
+	 * Process uploaded file via Wordpress Media Library
+	 * @param string $newfile file  url
+	 */
 	public function handle_dropped_image( $newfile ) {
 		$_FILES = array( 'upload' => $newfile );
 		
