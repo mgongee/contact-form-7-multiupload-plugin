@@ -158,7 +158,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 				/*. ' data-allowed-filetypes="' . $allowed_file_types . '" '*/
 				. '></div>';
 		$out .= '<input type="hidden" name="dropzone_uploaded_file_urls" class="uploaded_file_urls" value="">';
-		$out .= '<input type="hidden" name="dropzone_uploaded_file_ids" class="uploaded_file_ids" value"">';
+		$out .= '<input type="hidden" name="dropzone_uploaded_file_ids" class="uploaded_file_ids" value="">';
 		//$out .= wp_nonce_field( 'cf7_dropzone_upload_files' );
 
 		return $out;
@@ -300,6 +300,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 			foreach ($uploaded_files as $file_name => $file_path) {
 				$i++;
 				$sub_name = $name[0] . '-' . $i;
+				self::log("$sub_name , $file_path ");
 				$submission->add_uploaded_file( $sub_name, $file_path );
 			}
 		}
@@ -311,12 +312,13 @@ class Cf7_Multiupload extends Cf7_Extension {
 		$uploaded_files_urls = $_POST['dropzone_uploaded_file_urls'];
 		//$uploaded_files_ids = $_POST['dropzone_uploaded_file_ids'];
 		$uploaded_files = array();
+		$upload_dir = wp_upload_dir();
 
 		if ($uploaded_files_urls) {
 			$uploaded_files_urls = explode(',', $uploaded_files_urls);
 			foreach ($uploaded_files_urls as $file_path) {
 				$file_name = basename($file_path);
-				$uploaded_files[$file_name] = $file_path;
+				$uploaded_files[$file_name] = $upload_dir['basedir'] . DIRECTORY_SEPARATOR .  $file_path;
 			}
 		}
 
@@ -447,7 +449,10 @@ class Cf7_Multiupload extends Cf7_Extension {
 			);
 		} else {
 			// The image was uploaded successfully!
-			$attachment_url = wp_get_attachment_url( $attachment_id );
+			//$attachment_url = wp_get_attachment_url( $attachment_id );
+			
+			$attachment_url = get_post_meta( $attachment_id, '_wp_attached_file', true );
+			
 			$response = array(
 				'status' => self::STATUS_OK,
 				'file_id' => $attachment_id,
