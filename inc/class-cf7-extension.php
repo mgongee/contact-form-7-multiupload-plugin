@@ -50,9 +50,9 @@ class Cf7_Extension {
 
 	public static function log($data) {
 		
-		$filename = pathinfo(__FILE__, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR .'log.txt';
-		if (isset($_REQUEST['cf7ext_log_to_screen']) && $_REQUEST['cf7ext_log_to_screen'] == 1) {
-			echo('log::<pre>' . print_r($data, 1) . '</pre>');
+		$filename = pathinfo( __FILE__, PATHINFO_DIRNAME ) . DIRECTORY_SEPARATOR .'log.txt';
+		if ( isset($_REQUEST['cf7ext_log_to_screen']) && $_REQUEST['cf7ext_log_to_screen'] == 1 ) {
+			echo( 'log::<pre>' . print_r($data, 1) . '</pre>' );
 		}
 		else {
 			// file_put_contents($filename, date("Y-m-d H:i:s") . " | " . print_r($data,1) . "\r\n\r\n", FILE_APPEND);

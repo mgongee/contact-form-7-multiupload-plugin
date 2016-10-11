@@ -9,9 +9,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Version: 0.5
 */
 
-/*  Below code is partially based on the work by Katz Web Services, Inc. 
-    for their "Contact Form 7 Modules" plugin.
-	
+/*
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -29,9 +27,9 @@ Version: 0.5
 
 require_once 'includes.php';
 
-define('CFMU_VERSION', '0.5');
-define('CFMU_TEXT_DOMAIN', 'cf7-multiupload-field');
-define('CFMU_FIELD_NAME', 'multiupload');
+define( 'CFMU_VERSION', '0.5' );
+define( 'CFMU_TEXT_DOMAIN', 'cf7-multiupload-field' );
+define( 'CFMU_FIELD_NAME', 'multiupload' );
 
 $plugin_root = __FILE__;
 	
