@@ -36,7 +36,6 @@ class Cf7_Multiupload extends Cf7_Extension {
 
 		/* Form class filter */
 		add_filter('wpcf7_form_class_attr', array($this, 'form_class_filter'));
-		add_filter('wpcf7_form_id_attr', array($this, 'form_id_filter'));
 
 		/* Handle uploaded files */
 		add_action('admin_post_cf7_dropzone_handle_dropped_media', array($this, 'handle_dropped_media'));
@@ -55,7 +54,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 		$dropzone_parameters = array(
 			'action' => 'cf7_dropzone_handle_dropped_media',
 			'upload_url' => admin_url('admin-post.php?action=cf7_dropzone_handle_dropped_media'),
-			'delete_url' => admin_url('admin-post.php?action=cf7_dropzone_handle_deleted_media')
+			// TODO 'delete_url' => admin_url('admin-post.php?action=cf7_dropzone_handle_deleted_media')
 		);
 
 		return $dropzone_parameters;
@@ -351,23 +350,6 @@ class Cf7_Multiupload extends Cf7_Extension {
 		}
 
 		return $class;
-	}
-
-	/**
-	 * Sets #id for any form containing 'multiupload' field
-	 * @param string $id
-	 * @return string
-	 */
-	public function form_id_filter($id) {
-
-		$multipart = (bool) wpcf7_scan_shortcode(array('type' => array(CFMU_FIELD_NAME, CFMU_FIELD_NAME . '*')));
-		$multiupload_id = 'test-dropzone';
-
-		if ($multipart) {
-			$id = $multiupload_id;
-		}
-
-		return $id;
 	}
 
 	/**	 
