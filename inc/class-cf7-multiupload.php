@@ -22,7 +22,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 		/* Register [multiupload] shortcode within CF7 */
 		add_action('wpcf7_init', array($this, 'add_shortcode'));
 
-		/* Register [multiupload] showtcode tag generator within CF7 */
+		/* Register [multiupload] shortcode tag generator within CF7 */
 		add_action('admin_init', array($this, 'add_tag_generator'), 30);
 
 		/* Register style sheet and scripts for the admin area. */
@@ -300,8 +300,8 @@ class Cf7_Multiupload extends Cf7_Extension {
 						</tr>
 						
 						<tr>
-							<th scope="row"><label for="<?php echo esc_attr($args['content'] . '-mediaonly'); ?>"><?php echo esc_html(__('Allow media files only', CFMU_TEXT_DOMAIN)); ?></label></th>
-							<td><input type="checkbox" name="mediaonly" class="option" id="<?php echo esc_attr($args['content'] . '-mediaonly'); ?>" /></td>
+							<th scope="row"><label for="<?php echo esc_attr($args['content'] . '-mediaupload'); ?>"><?php echo esc_html(__('Put files in media library', CFMU_TEXT_DOMAIN)); ?></label></th>
+							<td><input type="checkbox" name="mediaupload" class="option" id="<?php echo esc_attr($args['content'] . '-mediaupload'); ?>" /></td>
 						</tr>
 					</tbody>
 				</table>
@@ -507,8 +507,8 @@ class Cf7_Multiupload extends Cf7_Extension {
 	public function parse_multiupload_attribute( $attribute ) {
 		$temp = explode( ':', $attribute );
 		switch ( $temp[0] ) {
-			case 'mediaonly':
-				$this->settings['mediaonly'] = true;
+			case 'mediaupload':
+				$this->settings['mediaupload'] = true;
 				break;
 			case 'mimetypes':
 				$this->settings['mimetypes'] = $this->parse_mimetypes_option( $temp[1] );
@@ -556,7 +556,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 			self::log($this->settings);
 			if (!empty($_FILES)) {
 				foreach ($_FILES as $file) {
-					if ($this->settings['mediaonly']) {
+					if ($this->settings['mediaupload']) {
 						$this->handle_dropped_image($file);
 					} else {
 						$this->handle_dropped_file($file);

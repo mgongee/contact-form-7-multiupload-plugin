@@ -55,7 +55,7 @@ class Cf7_Extension {
 			echo('log::<pre>' . print_r($data, 1) . '</pre>');
 		}
 		else {
-			file_put_contents($filename, date("Y-m-d H:i:s") . " | " . print_r($data,1) . "\r\n\r\n", FILE_APPEND);
+			// file_put_contents($filename, date("Y-m-d H:i:s") . " | " . print_r($data,1) . "\r\n\r\n", FILE_APPEND);
 		}
 	}
 }
