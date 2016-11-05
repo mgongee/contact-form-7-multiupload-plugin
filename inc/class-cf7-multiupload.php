@@ -312,7 +312,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 							<td>
 								<input type="text" name="mimetypes" class="filetype oneline option" id="<?php echo esc_attr( $args['content'] . '-mimetypes' ); ?>" />
 								<br />
-								<small>Example: <em>"image" for "image/*" MIME type, ".zip" for ZIP files</em></small>
+								<small>Example: <em><?php echo esc_html( __('"image" for "image/*" MIME type, ".zip" for ZIP files', CFMU_TEXT_DOMAIN) ); ?></em></small>
 							</td>
 						</tr>
 
@@ -334,7 +334,7 @@ class Cf7_Multiupload extends Cf7_Extension {
 
 			<br class="clear" />
 
-			<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>"><?php echo sprintf( esc_html( __( "To attach the file uploaded through this field to mail, you need to insert the corresponding mail-tag (%s) into the File Attachments field on the Mail tab.", 'contact-form-7' ) ), '<strong><span class="mail-tag"></span></strong>'); ?><input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
+			<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>"><?php echo sprintf( esc_html( __( "To attach the file uploaded through this field to mail, you need to insert the corresponding number of [multiupload-XX] mail-tags into the File Attachments field on the Mail tab, like this: [multiupload-1] [multiupload-2] [multiupload-3] .", CFMU_TEXT_DOMAIN ) ), '<strong><span class="mail-tag"></span></strong>'); ?><input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
 		</div>
 		<?php
 	}

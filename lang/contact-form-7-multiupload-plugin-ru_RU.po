@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ontact-form-7-multiupload-plugin\n"
-"POT-Creation-Date: 2016-11-06 00:36+0300\n"
-"PO-Revision-Date: 2016-11-06 00:39+0300\n"
+"POT-Creation-Date: 2016-11-06 00:58+0300\n"
+"PO-Revision-Date: 2016-11-06 00:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: mgongee\n"
 "Language: ru_RU\n"
@@ -16,50 +16,67 @@ msgstr ""
 "X-Poedit-KeywordsList: __\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: inc/class-cf7-multiupload.php:258
+#: inc/class-cf7-multiupload.php:266
 msgid "multiupload"
 msgstr "мультизагрузка"
 
-#: inc/class-cf7-multiupload.php:269
+#: inc/class-cf7-multiupload.php:277
 msgid "Generate a form-tag for a multi file upload."
 msgstr "Создать тег для поля мультизагрузки"
 
-#: inc/class-cf7-multiupload.php:278 inc/class-cf7-multiupload.php:281
+#: inc/class-cf7-multiupload.php:286 inc/class-cf7-multiupload.php:289
 msgid "Field type"
 msgstr ""
 
-#: inc/class-cf7-multiupload.php:282
+#: inc/class-cf7-multiupload.php:290
 msgid "Required field"
 msgstr ""
 
-#: inc/class-cf7-multiupload.php:288
+#: inc/class-cf7-multiupload.php:296
 msgid "Name"
 msgstr ""
 
-#: inc/class-cf7-multiupload.php:293
+#: inc/class-cf7-multiupload.php:301
 msgid "File size limit (Mb)"
 msgstr ""
 
-#: inc/class-cf7-multiupload.php:298
+#: inc/class-cf7-multiupload.php:306
 msgid "Max. number of files"
 msgstr "Мкс. количество файлов"
 
-#: inc/class-cf7-multiupload.php:303
+#: inc/class-cf7-multiupload.php:311
 msgid "Acceptable MIME types"
 msgstr "Допустимые MIME-типы"
 
-#: inc/class-cf7-multiupload.php:312
+#: inc/class-cf7-multiupload.php:315
+msgid "\"image\" for \"image/*\" MIME type, \".zip\" for ZIP files"
+msgstr "\"image\" for \"image/*\" MIME type, \".zip\" for ZIP files"
+
+#: inc/class-cf7-multiupload.php:320
 msgid "Put files in media library"
 msgstr "Сохранять файлы в медиатеке"
 
-#: inc/class-cf7-multiupload.php:324
+#: inc/class-cf7-multiupload.php:332
 msgid "Insert Tag"
 msgstr ""
 
-#: inc/class-cf7-multiupload.php:329
-#, php-format
+#: inc/class-cf7-multiupload.php:337
 msgid ""
 "To attach the file uploaded through this field to mail, you need to insert "
-"the corresponding mail-tag (%s) into the File Attachments field on the Mail "
-"tab."
+"the corresponding number of [multiupload-XX] mail-tags into the File "
+"Attachments field on the Mail tab, like this: [multiupload-1] "
+"[multiupload-2] [multiupload-3] ."
 msgstr ""
+"To attach the file uploaded through this field to mail, you need to insert "
+"the corresponding number of [multiupload-XX] mail-tags into the File "
+"Attachments field on the Mail tab, like this: [multiupload-1] "
+"[multiupload-2] [multiupload-3] ."
+
+#~ msgid ""
+#~ "To attach the file uploaded through this field to mail, you need to "
+#~ "insert the corresponding mail-tag (%s) into the File Attachments field on "
+#~ "the Mail tab."
+#~ msgstr ""
+#~ "To attach the file uploaded through this field to mail, you need to "
+#~ "insert the corresponding mail-tag (%s) into the File Attachments field on "
+#~ "the Mail tab."
