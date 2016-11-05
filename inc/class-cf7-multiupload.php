@@ -236,8 +236,8 @@ class Cf7_Multiupload extends Cf7_Extension {
 		$allowed_filecount_limit = $tag->get_option( 'max_files' );
 
 
-		if ( $allowed_filecount_limit ) {
-			$max_files = $allowed_filecount_limit;
+		if ( is_array( $allowed_filecount_limit ) && count( $allowed_filecount_limit ) ) {
+			$max_files = array_pop($allowed_filecount_limit);
 		}
 
 		$out = '<div class="cf7_dropzone dropzone" id="' . $id . '" '
@@ -292,6 +292,11 @@ class Cf7_Multiupload extends Cf7_Extension {
 						<tr>
 							<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-limit' ); ?>"><?php echo esc_html( __("File size limit (Mb)", 'contact-form-7' ) ); ?></label></th>
 							<td><input type="text" name="limit" class="filesize oneline option" id="<?php echo esc_attr( $args['content'] . '-limit'); ?>" /></td>
+						</tr>
+						
+						<tr>
+							<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-max_files' ); ?>"><?php echo esc_html( __("Max. number of files", CFMU_TEXT_DOMAIN ) ); ?></label></th>
+							<td><input type="text" name="max_files" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-max_files'); ?>" /></td>
 						</tr>
 
 						<tr>

@@ -58,7 +58,10 @@ jQuery(document).ready(function () {
                 console.log(dropzoneUploadedFiles);
                 */
             }
-        }
+        },
+	maxfilesexceeded: function() {
+	    console.log('maxfilesexceeded');
+	}
     });
 
 });
