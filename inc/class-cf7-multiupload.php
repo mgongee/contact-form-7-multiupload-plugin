@@ -30,6 +30,9 @@ class Cf7_Multiupload extends Cf7_Extension {
 
 		/* Register style sheet and scripts for the front. */
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_front_styles_and_scripts' ) );
+		
+		/* Text domain */
+		add_action('plugins_loaded', array( $this,'load_textdomain' ) );
 
 		/* Encode type filter */
 		add_filter( 'wpcf7_form_enctype', array( $this, 'form_enctype_filter' ) );
@@ -49,6 +52,11 @@ class Cf7_Multiupload extends Cf7_Extension {
 		add_filter( 'upload_mimes', array( $this, 'add_mime_types' ), 10, 1 );
 
 	}
+
+	public function load_textdomain() {
+		load_plugin_textdomain( CFMU_TEXT_DOMAIN, false, dirname( plugin_basename(__FILE__) ) . '/lang/' );
+	}
+
 
 	public function get_dropzone_parameters() {
 		$dropzone_parameters = array(
